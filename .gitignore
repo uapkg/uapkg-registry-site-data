@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.nx/
+.tmp/
+artifacts/
+*.log
+.env
+!.env.example

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -e
+
+echo "Running checks..."
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
+
+echo "Pre-commit checks passed"

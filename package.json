@@ -1,0 +1,40 @@
+{
+  "name": "uapkg-registry-site-data",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "prepare": "husky",
+    "format": "biome check src docs __tests__ .github/workflows README.md package.json pnpm-workspace.yaml nx.json tsconfig.base.json tsconfig.json biome.json vitest.config.ts .env.example --write --linter-enabled=false --assist-enabled=false",
+    "format:check": "biome check src docs __tests__ .github/workflows README.md package.json pnpm-workspace.yaml nx.json tsconfig.base.json tsconfig.json biome.json vitest.config.ts .env.example --linter-enabled=false --assist-enabled=false",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome check src docs __tests__ .github/workflows README.md package.json pnpm-workspace.yaml nx.json tsconfig.base.json tsconfig.json biome.json vitest.config.ts .env.example --files-ignore-unknown=true --assist-enabled=false",
+    "test": "vitest run",
+    "generate": "tsx src/cli/generate.ts",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "fast-glob": "3.3.3",
+    "markdown-it": "14.1.0",
+    "semver": "7.7.3",
+    "sanitize-html": "2.17.0",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.10",
+    "@types/markdown-it": "14.1.2",
+    "@types/node": "25.5.2",
+    "@types/sanitize-html": "2.16.0",
+    "@types/semver": "7.7.1",
+    "husky": "9.1.7",
+    "nx": "22.6.4",
+    "tsx": "4.21.0",
+    "typescript": "6.0.2",
+    "vitest": "4.1.2"
+  }
+}

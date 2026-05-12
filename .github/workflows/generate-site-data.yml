@@ -1,0 +1,53 @@
+name: Generate Site Data
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    env:
+      UAPKG_REGISTRY_REPO_OWNER: ${{ vars.UAPKG_REGISTRY_REPO_OWNER || 'uapkg' }}
+      UAPKG_REGISTRY_REPO_NAME: ${{ vars.UAPKG_REGISTRY_REPO_NAME || 'registry-testing' }}
+      UAPKG_REGISTRY_REPO_REF: ${{ vars.UAPKG_REGISTRY_REPO_REF || 'main' }}
+      UAPKG_OUTPUT_DIR: ./artifacts
+      UAPKG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Verify
+        run: pnpm verify
+
+      - name: Generate artifacts
+        run: pnpm generate
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-data-artifacts
+          path: artifacts
