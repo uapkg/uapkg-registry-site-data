@@ -9,6 +9,7 @@ const EnvConfigSchema = z
     UAPKG_REGISTRY_REPO_OWNER: z.string().min(1).default('uapkg'),
     UAPKG_REGISTRY_REPO_NAME: z.string().min(1).default('registry-testing'),
     UAPKG_REGISTRY_REPO_REF: z.string().min(1).default('main'),
+    UAPKG_REGISTRY_REPO_TOKEN: z.string().optional(),
     UAPKG_REGISTRY_LOCAL_PATH: z.string().optional(),
     UAPKG_OUTPUT_DIR: z.string().min(1).default('./artifacts'),
     UAPKG_GITHUB_TOKEN: z.string().optional(),
@@ -20,6 +21,7 @@ export interface EnvConfig {
   readonly registryRepoOwner: string;
   readonly registryRepoName: string;
   readonly registryRepoRef: string;
+  readonly registryRepoToken?: string;
   readonly registryLocalPath?: string;
   readonly outputDir: string;
   readonly githubToken?: string;
@@ -33,6 +35,7 @@ export class EnvConfigLoader {
       UAPKG_REGISTRY_REPO_OWNER: process.env.UAPKG_REGISTRY_REPO_OWNER,
       UAPKG_REGISTRY_REPO_NAME: process.env.UAPKG_REGISTRY_REPO_NAME,
       UAPKG_REGISTRY_REPO_REF: process.env.UAPKG_REGISTRY_REPO_REF,
+      UAPKG_REGISTRY_REPO_TOKEN: process.env.UAPKG_REGISTRY_REPO_TOKEN,
       UAPKG_REGISTRY_LOCAL_PATH: process.env.UAPKG_REGISTRY_LOCAL_PATH,
       UAPKG_OUTPUT_DIR: process.env.UAPKG_OUTPUT_DIR,
       UAPKG_GITHUB_TOKEN: process.env.UAPKG_GITHUB_TOKEN,
@@ -50,6 +53,7 @@ export class EnvConfigLoader {
       registryRepoOwner: parsed.data.UAPKG_REGISTRY_REPO_OWNER,
       registryRepoName: parsed.data.UAPKG_REGISTRY_REPO_NAME,
       registryRepoRef: parsed.data.UAPKG_REGISTRY_REPO_REF,
+      registryRepoToken: parsed.data.UAPKG_REGISTRY_REPO_TOKEN?.trim() || undefined,
       registryLocalPath: parsed.data.UAPKG_REGISTRY_LOCAL_PATH?.trim() || undefined,
       outputDir: path.resolve(parsed.data.UAPKG_OUTPUT_DIR),
       githubToken: parsed.data.UAPKG_GITHUB_TOKEN?.trim() || undefined,

@@ -14,6 +14,7 @@ jobs:
       UAPKG_REGISTRY_REPO_NAME: ${{ vars.UAPKG_REGISTRY_REPO_NAME || 'registry-testing' }}
       UAPKG_REGISTRY_REPO_REF: ${{ vars.UAPKG_REGISTRY_REPO_REF || 'main' }}
       UAPKG_OUTPUT_DIR: ./artifacts
+      UAPKG_REGISTRY_REPO_TOKEN: ${{ secrets.PRIVATE_REGISTRY_TOKEN }}
       UAPKG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -48,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: site-data-artifacts
-          path: artifacts
+          path: ${{ env.UAPKG_OUTPUT_DIR }}

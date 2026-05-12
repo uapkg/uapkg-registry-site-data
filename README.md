@@ -43,13 +43,27 @@ Workflow [generate-site-data.yml](.github/workflows/generate-site-data.yml) uses
 
 Repository secrets:
 
-- GITHUB_TOKEN: automatically provided by GitHub Actions (used as UAPKG_GITHUB_TOKEN)
+- GITHUB_TOKEN: automatically provided by GitHub Actions (used as UAPKG_GITHUB_TOKEN for API-based README fetches)
+- PRIVATE_REGISTRY_TOKEN: optional token used only to clone/fetch UAPKG_REGISTRY_REPO_NAME when that repository is private
+
+Private registry access notes:
+
+- The default GITHUB_TOKEN in this workflow is scoped to the current repository and cannot read arbitrary private repositories in the organization.
+- If UAPKG_REGISTRY_REPO_NAME points to a private repository (for example uapkg/registry-testing), configure PRIVATE_REGISTRY_TOKEN.
+- Recommended for 2026: use a fine-grained token scoped only to the private registry repository with:
+	- Repository access: Only select repositories
+	- Selected repository: uapkg/registry-testing (or whichever private registry source you configured)
+	- Repository permissions: Contents (Read), Metadata (Read)
 
 Repository variables (optional, defaults are already in workflow):
 
 - UAPKG_REGISTRY_REPO_OWNER (default: uapkg)
 - UAPKG_REGISTRY_REPO_NAME (default: registry-testing)
 - UAPKG_REGISTRY_REPO_REF (default: main)
+
+Environment variables used by generate:
+
+- UAPKG_REGISTRY_REPO_TOKEN: optional clone/fetch token for private registry source repositories
 
 ## Output
 
