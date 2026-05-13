@@ -1,5 +1,7 @@
 packages: []
 
-onlyBuiltDependencies:
-  - esbuild
-  - nx
+allowBuilds:
+  esbuild: true
+  nx: true
+
+pmOnFail: error

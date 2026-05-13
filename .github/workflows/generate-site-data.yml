@@ -30,11 +30,8 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Enable corepack
-        run: corepack enable
-
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Format check
         run: pnpm format:check
