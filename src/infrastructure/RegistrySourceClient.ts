@@ -24,24 +24,50 @@ interface CloneEndpoint {
   readonly diagnostic: string;
 }
 
+const getTokenShape = (token: string): 'fine-grained' | 'classic' | 'github-actions' | 'unknown' => {
+  if (token.startsWith('github_pat_')) {
+    return 'fine-grained';
+  }
+
+  if (token.startsWith('ghp_')) {
+    return 'classic';
+  }
+
+  if (token.startsWith('ghs_')) {
+    return 'github-actions';
+  }
+
+  return 'unknown';
+};
+
+const buildAuthenticatedGithubUrl = (owner: string, repo: string, token: string): string => {
+  const encodedToken = encodeURIComponent(token);
+  const tokenShape = getTokenShape(token);
+
+  if (tokenShape === 'fine-grained' || tokenShape === 'classic') {
+    const username = process.env.UAPKG_REGISTRY_REPO_TOKEN_USERNAME ?? process.env.GITHUB_ACTOR ?? 'git';
+    return `https://${encodeURIComponent(username)}:${encodedToken}@github.com/${owner}/${repo}.git`;
+  }
+
+  return `https://x-access-token:${encodedToken}@github.com/${owner}/${repo}.git`;
+};
+
 const buildCloneEndpoints = (config: EnvConfig): readonly CloneEndpoint[] => {
   const publicUrl = `https://github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`;
   const endpoints: CloneEndpoint[] = [];
 
   if (config.registryRepoToken) {
-    const encodedToken = encodeURIComponent(config.registryRepoToken);
     endpoints.push({
       authMode: 'registry-token',
-      actual: `https://x-access-token:${encodedToken}@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+      actual: buildAuthenticatedGithubUrl(config.registryRepoOwner, config.registryRepoName, config.registryRepoToken),
       diagnostic: `https://x-access-token:***@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
     });
   }
 
   if (config.githubToken) {
-    const encodedGithubToken = encodeURIComponent(config.githubToken);
     endpoints.push({
       authMode: 'github-token',
-      actual: `https://x-access-token:${encodedGithubToken}@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+      actual: buildAuthenticatedGithubUrl(config.registryRepoOwner, config.registryRepoName, config.githubToken),
       diagnostic: `https://x-access-token:***@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
     });
   }
