@@ -18,20 +18,41 @@ const exists = async (targetPath: string): Promise<boolean> => {
   }
 };
 
-const buildCloneUrls = (config: EnvConfig): { readonly actual: string; readonly diagnostic: string } => {
+interface CloneEndpoint {
+  readonly authMode: 'registry-token' | 'github-token' | 'public';
+  readonly actual: string;
+  readonly diagnostic: string;
+}
+
+const buildCloneEndpoints = (config: EnvConfig): readonly CloneEndpoint[] => {
   const publicUrl = `https://github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`;
-  if (!config.registryRepoToken) {
-    return {
-      actual: publicUrl,
-      diagnostic: publicUrl,
-    };
+  const endpoints: CloneEndpoint[] = [];
+
+  if (config.registryRepoToken) {
+    const encodedToken = encodeURIComponent(config.registryRepoToken);
+    endpoints.push({
+      authMode: 'registry-token',
+      actual: `https://x-access-token:${encodedToken}@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+      diagnostic: `https://x-access-token:***@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+    });
   }
 
-  const encodedToken = encodeURIComponent(config.registryRepoToken);
-  return {
-    actual: `https://x-access-token:${encodedToken}@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
-    diagnostic: `https://x-access-token:***@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
-  };
+  if (config.githubToken) {
+    const encodedGithubToken = encodeURIComponent(config.githubToken);
+    endpoints.push({
+      authMode: 'github-token',
+      actual: `https://x-access-token:${encodedGithubToken}@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+      diagnostic: `https://x-access-token:***@github.com/${config.registryRepoOwner}/${config.registryRepoName}.git`,
+    });
+  }
+
+  endpoints.push({
+    authMode: 'public',
+    actual: publicUrl,
+    diagnostic: publicUrl,
+  });
+
+  return endpoints;
 };
 
 export class RegistrySourceClient implements IRegistrySourceClient {
@@ -53,15 +74,17 @@ export class RegistrySourceClient implements IRegistrySourceClient {
       config.cacheCheckoutPath,
       `${config.registryRepoOwner}-${config.registryRepoName}-${config.registryRepoRef}`,
     );
-    const cloneUrls = buildCloneUrls(config);
+    const cloneEndpoints = buildCloneEndpoints(config);
 
     await mkdir(path.dirname(targetPath), { recursive: true });
 
     const alreadyCloned = await exists(targetPath);
     if (!alreadyCloned) {
-      const cloneResult = await this.runGitCommand(
-        ['clone', '--depth', '1', '--branch', config.registryRepoRef, cloneUrls.actual, targetPath],
-        ['clone', '--depth', '1', '--branch', config.registryRepoRef, cloneUrls.diagnostic, targetPath],
+      const cloneResult = await this.runGitCommandWithFallback(
+        cloneEndpoints,
+        (endpoint) => ['clone', '--depth', '1', '--branch', config.registryRepoRef, endpoint.actual, targetPath],
+        (endpoint) => ['clone', '--depth', '1', '--branch', config.registryRepoRef, endpoint.diagnostic, targetPath],
+        'clone',
       );
       if (!cloneResult.ok) {
         return cloneResult;
@@ -70,9 +93,11 @@ export class RegistrySourceClient implements IRegistrySourceClient {
       return ok(targetPath);
     }
 
-    const fetchResult = await this.runGitCommand(
-      ['-C', targetPath, 'fetch', cloneUrls.actual, config.registryRepoRef, '--depth', '1'],
-      ['-C', targetPath, 'fetch', cloneUrls.diagnostic, config.registryRepoRef, '--depth', '1'],
+    const fetchResult = await this.runGitCommandWithFallback(
+      cloneEndpoints,
+      (endpoint) => ['-C', targetPath, 'fetch', endpoint.actual, config.registryRepoRef, '--depth', '1'],
+      (endpoint) => ['-C', targetPath, 'fetch', endpoint.diagnostic, config.registryRepoRef, '--depth', '1'],
+      'fetch',
     );
     if (!fetchResult.ok) {
       return fetchResult;
@@ -90,17 +115,61 @@ export class RegistrySourceClient implements IRegistrySourceClient {
     args: readonly string[],
     diagnosticArgs: readonly string[] = args,
   ): Promise<Result<void>> {
+    const commandResult = await this.runGitCommandRaw(args);
+    if (commandResult.ok) {
+      return ok(undefined);
+    }
+
+    return fail(
+      createDiagnostic('GIT_COMMAND_FAILED', 'error', 'Git command failed while preparing registry source.', {
+        args: diagnosticArgs,
+        message: commandResult.message,
+      }),
+    );
+  }
+
+  private async runGitCommandWithFallback(
+    endpoints: readonly CloneEndpoint[],
+    buildActualArgs: (endpoint: CloneEndpoint) => readonly string[],
+    buildDiagnosticArgs: (endpoint: CloneEndpoint) => readonly string[],
+    operation: 'clone' | 'fetch',
+  ): Promise<Result<void>> {
+    const attempts: Array<Record<string, unknown>> = [];
+
+    for (const endpoint of endpoints) {
+      const actualArgs = buildActualArgs(endpoint);
+      const diagnosticArgs = buildDiagnosticArgs(endpoint);
+      const commandResult = await this.runGitCommandRaw(actualArgs);
+
+      if (commandResult.ok) {
+        return ok(undefined);
+      }
+
+      attempts.push({
+        authMode: endpoint.authMode,
+        args: diagnosticArgs,
+        message: commandResult.message,
+      });
+    }
+
+    return fail(
+      createDiagnostic('GIT_COMMAND_FAILED', 'error', 'Git command failed while preparing registry source.', {
+        operation,
+        attempts,
+        hint: 'Verify UAPKG_REGISTRY_REPO_TOKEN has read access to the target repository, including SSO authorization when required.',
+      }),
+    );
+  }
+
+  private async runGitCommandRaw(
+    args: readonly string[],
+  ): Promise<{ readonly ok: true } | { readonly ok: false; readonly message: string }> {
     try {
       await execFileAsync('git', [...args]);
-      return ok(undefined);
+      return { ok: true };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return fail(
-        createDiagnostic('GIT_COMMAND_FAILED', 'error', 'Git command failed while preparing registry source.', {
-          args: diagnosticArgs,
-          message,
-        }),
-      );
+      return { ok: false, message };
     }
   }
 }
