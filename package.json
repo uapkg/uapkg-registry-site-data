@@ -19,6 +19,7 @@
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
+    "@uapkg/registry-schema": "1.1.10",
     "fast-glob": "3.3.3",
     "markdown-it": "14.1.0",
     "semver": "7.7.3",

@@ -1,6 +1,6 @@
 import { createDiagnostic } from '../core/Diagnostic.js';
 import { fail, ok, type Result } from '../core/Result.js';
-import { PackageRegistryManifestSchema, type PackageRegistryManifest } from '../domain/RegistryManifestSchema.js';
+import { PackageRegistryManifestSchema, type PackageRegistryManifest } from '@uapkg/registry-schema';
 import type { IManifestValidator } from '../contracts/Services.js';
 
 export class ManifestValidator implements IManifestValidator {

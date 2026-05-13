@@ -6,27 +6,40 @@ describe('ManifestValidator', () => {
     const validator = new ManifestValidator();
     const result = validator.validateManifest(
       {
-        name: 'demo-package',
+        name: 'auth-sdk',
         packageSource: {
           type: 'git',
-          url: 'https://github.com/uapkg/demo',
+          url: 'https://github.com/uapkg/auth-sdk',
         },
         versions: {
-          '1.0.0': {
-            gitTree: 'abc123',
+          '0.3.0': {
+            gitTree: '7777777777777777777777777777777777777777',
+            meta: {
+              publishedAt: 1748736000,
+            },
             releaseFiles: {
               package: {
-                url: 'https://example.com/pkg.tgz',
+                url: 'https://github.com/uapkg/registry-testing/releases/download/auth-sdk-v0.3.0/auth-sdk-0.3.0.tgz',
                 integrity: {
-                  hash: 'sha256:abcd',
-                  size: 42,
+                  hash: 'sha256:1212121212121212121212121212121212121212121212121212121212121212',
+                  size: 17540,
                 },
               },
+            },
+            dependencies: {
+              'http-client': '^1.0.0',
+              'core-utils': {
+                version: '^1.1.0',
+                registry: 'default',
+              },
+            },
+            peerDependencies: {
+              'logging-kit': '^1.0.0',
             },
           },
         },
       },
-      'packages/d/demo-package.json',
+      'packages/a/auth-sdk.json',
     );
 
     expect(result.ok).toBe(true);

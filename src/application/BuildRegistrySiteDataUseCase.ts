@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import semver from 'semver';
+import type { PackageRegistryManifest } from '@uapkg/registry-schema';
 import type { EnvConfig } from '../config/EnvConfig.js';
 import type { PackageDetailArtifact, PackageSummaryArtifact, PackageVersionArtifact } from '../contracts/Artifacts.js';
 import type {
@@ -176,34 +177,30 @@ export class BuildRegistrySiteDataUseCase {
     }
   }
 
-  private buildVersionArtifacts(
-    versions: Record<
-      string,
-      {
-        meta?: { publishedAt: number };
-        dependencies?: Record<string, unknown>;
-        devDependencies?: Record<string, unknown>;
-        peerDependencies?: Record<string, unknown>;
-      }
-    >,
-  ): readonly PackageVersionArtifact[] {
-    const versionKeys = Object.keys(versions);
+  private buildVersionArtifacts(versions: PackageRegistryManifest['versions']): readonly PackageVersionArtifact[] {
+    const versionKeys = Object.keys(versions) as Array<keyof typeof versions>;
     const hasSemverOnly = versionKeys.every((version) => Boolean(semver.valid(version)));
-    const sortedVersions: string[] = hasSemverOnly
-      ? semver.rsort(versionKeys)
+    const sortedVersions: Array<keyof typeof versions> = hasSemverOnly
+      ? (semver.rsort(versionKeys) as Array<keyof typeof versions>)
       : [...versionKeys].sort((left, right) => right.localeCompare(left));
 
     return sortedVersions.map((version) => {
       const data = versions[version];
+      const dependencies = data.dependencies ?? {};
+      const devDependencies = data.devDependencies ?? {};
+      const peerDependencies = data.peerDependencies ?? {};
       const dependencyCount =
-        Object.keys(data.dependencies ?? {}).length +
-        Object.keys(data.devDependencies ?? {}).length +
-        Object.keys(data.peerDependencies ?? {}).length;
+        Object.keys(dependencies).length + Object.keys(devDependencies).length + Object.keys(peerDependencies).length;
 
       return {
-        version,
+        version: String(version),
         publishedAt: data.meta?.publishedAt,
         dependencyCount,
+        gitTree: data.gitTree,
+        packageFileUrl: data.releaseFiles.package.url,
+        dependencies,
+        devDependencies,
+        peerDependencies,
       };
     });
   }

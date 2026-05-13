@@ -1,5 +1,6 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import type { PackageDetailArtifact, PackageSummaryArtifact } from '../contracts/Artifacts.js';
 import type { IArtifactWriter } from '../contracts/Services.js';
 import { createDiagnostic } from '../core/Diagnostic.js';
 import { fail, ok, type Result } from '../core/Result.js';
@@ -7,22 +8,8 @@ import { fail, ok, type Result } from '../core/Result.js';
 export class ArtifactWriter implements IArtifactWriter {
   public async writeArtifacts(input: {
     outputDir: string;
-    summaries: readonly {
-      name: string;
-      sourceUrl: string;
-      latestVersion?: string;
-      versionCount: number;
-      updatedAt?: number;
-    }[];
-    details: readonly {
-      name: string;
-      sourceUrl: string;
-      latestVersion?: string;
-      versionCount: number;
-      updatedAt?: number;
-      versions: readonly { version: string; publishedAt?: number; dependencyCount: number }[];
-      readmeHtml?: string;
-    }[];
+    summaries: readonly PackageSummaryArtifact[];
+    details: readonly PackageDetailArtifact[];
   }): Promise<Result<void>> {
     const packagesDir = path.join(input.outputDir, 'packages');
 

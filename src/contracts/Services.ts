@@ -1,7 +1,7 @@
 import type { EnvConfig } from '../config/EnvConfig.js';
 import type { PackageDetailArtifact, PackageSummaryArtifact } from './Artifacts.js';
 import type { Result } from '../core/Result.js';
-import type { PackageRegistryManifest } from '../domain/RegistryManifestSchema.js';
+import type { PackageRegistryManifest } from '@uapkg/registry-schema';
 
 export interface IRegistrySourceClient {
   resolveRegistryPath(config: EnvConfig): Promise<Result<string>>;

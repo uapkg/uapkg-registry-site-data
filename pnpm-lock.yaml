@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@uapkg/registry-schema':
+        specifier: 1.1.10
+        version: 1.1.10
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
@@ -497,6 +500,15 @@ packages:
 
   '@types/semver@7.7.1':
     resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
+
+  '@uapkg/common-schema@1.1.10':
+    resolution: {integrity: sha512-3URTlPk9sKSllnhYldVbmwqc1XQeC6AhyVoqAuFHvNheQdHDmpxltikU5iIs82crrJmsEiNp4y5Pa2iDDPKjGg==}
+
+  '@uapkg/diagnostics@1.1.10':
+    resolution: {integrity: sha512-m4YB8H3DRdn8Q39UXx4jx2GAK6DCy0sM1WKf2fCxVx+AACsXZ3ir4ux5W1KxtJWucAkFcXjrAQ6DvuvrH0l87g==}
+
+  '@uapkg/registry-schema@1.1.10':
+    resolution: {integrity: sha512-rxfC7E6D2GdEAkgtOP3j+sQH2318g675afWnQpJJQ2OazGjQOT+ngxofrjKn4lYS+fSFlX6mdy4EvU7tpepORQ==}
 
   '@vitest/expect@4.1.2':
     resolution: {integrity: sha512-gbu+7B0YgUJ2nkdsRJrFFW6X7NTP44WlhiclHniUhxADQJH5Szt9mZ9hWnJPJ8YwOK5zUOSSlSvyzRf0u1DSBQ==}
@@ -1173,6 +1185,11 @@ packages:
   sanitize-html@2.17.0:
     resolution: {integrity: sha512-dLAADUSS8rBwhaevT12yCezvioCA+bmUTPH/u57xKPT8d++voeYE6HeluA/bPbQ15TwDBG2ii+QZIEmYx8VdxA==}
 
+  semver@7.7.1:
+    resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   semver@7.7.3:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
     engines: {node: '>=10'}
@@ -1385,6 +1402,9 @@ packages:
 
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -1674,6 +1694,20 @@ snapshots:
       htmlparser2: 8.0.2
 
   '@types/semver@7.7.1': {}
+
+  '@uapkg/common-schema@1.1.10':
+    dependencies:
+      '@uapkg/diagnostics': 1.1.10
+      semver: 7.7.1
+      zod: 4.3.6
+
+  '@uapkg/diagnostics@1.1.10': {}
+
+  '@uapkg/registry-schema@1.1.10':
+    dependencies:
+      '@uapkg/common-schema': 1.1.10
+      '@uapkg/diagnostics': 1.1.10
+      zod: 4.3.6
 
   '@vitest/expect@4.1.2':
     dependencies:
@@ -2371,6 +2405,8 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.5.14
 
+  semver@7.7.1: {}
+
   semver@7.7.3: {}
 
   siginfo@2.0.0: {}
@@ -2530,3 +2566,5 @@ snapshots:
       yargs-parser: 21.1.1
 
   zod@4.1.12: {}
+
+  zod@4.3.6: {}

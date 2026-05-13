@@ -1,7 +1,19 @@
+export interface PackageVersionDependencyArtifact {
+  readonly version: string;
+  readonly registry?: string;
+}
+
+export type PackageVersionDependencyMapArtifact = Readonly<Record<string, PackageVersionDependencyArtifact>>;
+
 export interface PackageVersionArtifact {
   readonly version: string;
   readonly publishedAt?: number;
   readonly dependencyCount: number;
+  readonly gitTree: string;
+  readonly packageFileUrl: string;
+  readonly dependencies: PackageVersionDependencyMapArtifact;
+  readonly devDependencies: PackageVersionDependencyMapArtifact;
+  readonly peerDependencies: PackageVersionDependencyMapArtifact;
 }
 
 export interface PackageSearchMetaArtifact {
