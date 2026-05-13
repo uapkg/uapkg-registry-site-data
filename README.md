@@ -5,17 +5,53 @@ Static data-generation pipeline for the UAPKG web registry.
 ## Responsibilities
 
 - Read canonical manifests from a configured registry repository.
-- Validate incoming JSON at trust boundaries.
+- Validate incoming JSON.
 - Fetch package README content from source repositories.
 - Rewrite relative links and image URLs.
 - Sanitize rendered markdown for static web consumption.
-- Generate deterministic artifacts for uapkg-web.
+- Generate artifacts for uapkg-web.
 
 ## Commands
 
 - pnpm install
 - pnpm generate
 - pnpm verify
+
+## Local Bootstrap
+
+Use this when you want to generate artifacts from a local registry repository checkout.
+
+Create a `.env` file in this repository and run generate:
+
+```text
+UAPKG_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
+```
+
+then run
+
+```sh
+pnpm generate
+```
+
+Optional explicit repo settings (not required when using UAPKG_REGISTRY_LOCAL_PATH):
+
+```text
+UAPKG_REGISTRY_REPO_OWNER=uapkg
+UAPKG_REGISTRY_REPO_NAME=registry-testing
+UAPKG_REGISTRY_REPO_REF=main
+```
+
+For end-to-end local web integration from `uapkg-web`, use:
+
+```text
+UAPKG_SITE_DATA_REPO_PATH=D:/uapkg/uapkg-registry-site-data
+UAPKG_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
+
+```sh
+pnpm site-data:generate:testing
+```
+
+This bypasses remote clone/fetch and reads manifests directly from the local filesystem.
 
 ## Git Hooks (Husky)
 
@@ -51,9 +87,9 @@ Private registry access notes:
 - The default GITHUB_TOKEN in this workflow is scoped to the current repository and cannot read arbitrary private repositories in the organization.
 - If UAPKG_REGISTRY_REPO_NAME points to a private repository (for example uapkg/registry-testing), configure PRIVATE_REGISTRY_TOKEN.
 - Recommended for 2026: use a fine-grained token scoped only to the private registry repository with:
-	- Repository access: Only select repositories
-	- Selected repository: uapkg/registry-testing (or whichever private registry source you configured)
-	- Repository permissions: Contents (Read), Metadata (Read)
+  - Repository access: Only select repositories
+  - Selected repository: uapkg/registry-testing (or whichever private registry source you configured)
+  - Repository permissions: Contents (Read), Metadata (Read)
 
 Repository variables (optional, defaults are already in workflow):
 
