@@ -8,6 +8,17 @@ import { MarkdownSanitizer } from '../infrastructure/MarkdownSanitizer.js';
 import { ReadmeFetcher } from '../infrastructure/ReadmeFetcher.js';
 import { RegistrySourceClient } from '../infrastructure/RegistrySourceClient.js';
 
+const loadLocalEnvFiles = (): void => {
+  // Node >=22 supports process.loadEnvFile, allowing a cross-platform .env workflow with no shell export/set.
+  for (const fileName of ['.env', '.env.local']) {
+    try {
+      process.loadEnvFile(fileName);
+    } catch {
+      // Missing files are expected for some environments.
+    }
+  }
+};
+
 const logDiagnostics = (
   diagnostics: readonly { code: string; severity: string; message: string; data?: Record<string, unknown> }[],
 ): void => {
@@ -18,6 +29,8 @@ const logDiagnostics = (
 };
 
 async function main(): Promise<void> {
+  loadLocalEnvFiles();
+
   const configLoader = new EnvConfigLoader();
   const configResult = configLoader.loadFromProcessEnv();
 
