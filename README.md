@@ -1,6 +1,6 @@
-# UAPKG Registry Site Data
+# uapkg Registry Site Data
 
-Static data-generation pipeline for the UAPKG web registry.
+Static data-generation pipeline for the uapkg web registry.
 
 ## Responsibilities
 
@@ -24,7 +24,7 @@ Use this when you want to generate artifacts from a local registry repository ch
 Create a `.env` file in this repository and run generate:
 
 ```text
-UAPKG_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
+uapkg_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
 ```
 
 then run
@@ -33,19 +33,19 @@ then run
 pnpm generate
 ```
 
-Optional explicit repo settings (not required when using UAPKG_REGISTRY_LOCAL_PATH):
+Optional explicit repo settings (not required when using uapkg_REGISTRY_LOCAL_PATH):
 
 ```text
-UAPKG_REGISTRY_REPO_OWNER=uapkg
-UAPKG_REGISTRY_REPO_NAME=registry-testing
-UAPKG_REGISTRY_REPO_REF=main
+uapkg_REGISTRY_REPO_OWNER=uapkg
+uapkg_REGISTRY_REPO_NAME=registry-testing
+uapkg_REGISTRY_REPO_REF=main
 ```
 
 For end-to-end local web integration from `uapkg-web`, use:
 
 ```text
-UAPKG_SITE_DATA_REPO_PATH=D:/uapkg/uapkg-registry-site-data
-UAPKG_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
+uapkg_SITE_DATA_REPO_PATH=D:/uapkg/uapkg-registry-site-data
+uapkg_REGISTRY_LOCAL_PATH=D:/uapkg/registry-testing
 
 ```sh
 pnpm site-data:generate:testing
@@ -79,13 +79,13 @@ Workflow [generate-site-data.yml](.github/workflows/generate-site-data.yml) uses
 
 Repository secrets:
 
-- GITHUB_TOKEN: automatically provided by GitHub Actions (used as UAPKG_GITHUB_TOKEN for API-based README fetches)
-- PRIVATE_REGISTRY_TOKEN: optional token used only to clone/fetch UAPKG_REGISTRY_REPO_NAME when that repository is private
+- GITHUB_TOKEN: automatically provided by GitHub Actions (used as uapkg_GITHUB_TOKEN for API-based README fetches)
+- PRIVATE_REGISTRY_TOKEN: optional token used only to clone/fetch uapkg_REGISTRY_REPO_NAME when that repository is private
 
 Private registry access notes:
 
 - The default GITHUB_TOKEN in this workflow is scoped to the current repository and cannot read arbitrary private repositories in the organization.
-- If UAPKG_REGISTRY_REPO_NAME points to a private repository (for example uapkg/registry-testing), configure PRIVATE_REGISTRY_TOKEN.
+- If uapkg_REGISTRY_REPO_NAME points to a private repository (for example uapkg/registry-testing), configure PRIVATE_REGISTRY_TOKEN.
 - Recommended for 2026: use a fine-grained token scoped only to the private registry repository with:
   - Repository access: Only select repositories
   - Selected repository: uapkg/registry-testing (or whichever private registry source you configured)
@@ -93,13 +93,13 @@ Private registry access notes:
 
 Repository variables (optional, defaults are already in workflow):
 
-- UAPKG_REGISTRY_REPO_OWNER (default: uapkg)
-- UAPKG_REGISTRY_REPO_NAME (default: registry-testing)
-- UAPKG_REGISTRY_REPO_REF (default: main)
+- uapkg_REGISTRY_REPO_OWNER (default: uapkg)
+- uapkg_REGISTRY_REPO_NAME (default: registry-testing)
+- uapkg_REGISTRY_REPO_REF (default: main)
 
 Environment variables used by generate:
 
-- UAPKG_REGISTRY_REPO_TOKEN: optional clone/fetch token for private registry source repositories
+- uapkg_REGISTRY_REPO_TOKEN: optional clone/fetch token for private registry source repositories
 
 ## Output
 
